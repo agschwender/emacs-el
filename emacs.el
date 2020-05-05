@@ -19,7 +19,7 @@
 (desktop-save-mode 1)
 
 ;; Disable bell
-(setq visible-bell nil)
+(setq visible-bell 1)
 
 ;; The title of each emacs frame should be "emacs: <buffer_name>".
 (setq frame-title-format "emacs: %b")
@@ -130,6 +130,8 @@
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
 
+(defvar tabs-always-indent nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Search
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -146,12 +148,13 @@
 
 (add-hook 'go-mode-hook
 	  (lambda()
-	    (setq gofmt-command "goimports")
 	    (add-hook 'before-save-hook #'gofmt-before-save)
+	    (setq gofmt-args (list "-s"))
 	    (setq tab-width 4)
 	    (setq fill-column 72)
 	    (setq fill-prefix "// ")
 	    (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t)))
+(add-to-list 'auto-mode-alist '("\.go$" . go-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Handlebars
@@ -183,15 +186,15 @@
 
 (defun my-js2-mode-hook ()
   (setq tabs-always-indent nil)
-  (setq tab-width 4)
-  (setq c-basic-offset 4)
+  (setq tab-width 2)
+  (setq c-basic-offset 2)
+  (setq js2-basic-offset 2)
   (setq indent-tabs-mode nil)
   (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t))
 
 (setq js2-strict-trailing-comma-warning nil)
 
 (add-hook 'js2-mode-hook 'my-js2-mode-hook)
-(add-to-list 'auto-mode-alist '("\.js$" . js2-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; JSON
@@ -204,6 +207,7 @@
 (add-hook 'json-mode-hook
 	  (lambda()
 	    (setq indent-tabs-mode nil)
+	    (setq tab-width 2)
 	    (local-set-key (kbd "C-c C-f") 'format-file-json)
 	    (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t)))
 
@@ -226,6 +230,7 @@
 (add-hook 'scss-mode-hook
 	  (lambda()
 	    (setq indent-tabs-mode nil)
+	    (setq tab-width 2)
 	    (setq scss-compile-at-save nil)
 	    (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t)))
 
@@ -243,20 +248,28 @@
 ;; Javascript
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+(defvar web-mode-markup-indent-offset)
+(defvar web-mode-css-indent-offset)
+(defvar web-mode-code-indent-offset)
+(defvar web-mode-enable-auto-quoting)
+(defvar web-mode-indent-style)
+
 (defun my-web-mode-hook ()
   (setq tabs-always-indent nil)
   (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-css-indent-offset 4)
-  (setq web-mode-code-indent-offset 4)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
   (setq web-mode-enable-auto-quoting nil)
+  (setq web-mode-indent-style 2)
   (setq indent-tabs-mode nil)
   (web-mode-set-content-type "jsx")
   (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t))
 
 (add-hook 'web-mode-hook 'my-web-mode-hook)
-(add-to-list 'auto-mode-alist '("chimata-native/.*\.js$" . web-mode))
-(add-to-list 'auto-mode-alist '("\.react\.js$" . web-mode))
 (add-to-list 'auto-mode-alist '("\.jsx$" . web-mode))
+(add-to-list 'auto-mode-alist '("\.js$" . web-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ruby
@@ -282,7 +295,14 @@
 '(markdown-pandoc-pdf-command "pandoc -V geometry:margin=1in -s --mathjax")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Theme (Custom)
+;; Markdown
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.14/libexec/plantuml.jar")
+(add-to-list 'auto-mode-alist '("\.plantuml$" . plantuml-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Theme
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (custom-set-variables
@@ -319,7 +339,7 @@
  '(magit-diff-use-overlays nil)
  '(package-selected-packages
    (quote
-    (ruby-additional rspec-mode flymake-ruby yaml-mode magit color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow web-mode multiple-cursors jsx-mode json-mode js2-mode flycheck exec-path-from-shell)))
+    (gotest flymake-golangci flycheck-golangci-lint flymake flymake-go ruby-refactor ruby-tools protobuf-mode coffee-mode plantuml-mode go-mode python-mode markdown-mode scss-mode ruby-additional rspec-mode flymake-ruby yaml-mode magit color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow web-mode multiple-cursors jsx-mode json-mode js2-mode flycheck exec-path-from-shell)))
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
  '(term-default-bg-color "#002b36")
  '(term-default-fg-color "#839496")
@@ -333,3 +353,4 @@
  ;; If there is more than one, they won't work right.
  )
 (put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
