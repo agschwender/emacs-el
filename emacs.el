@@ -2,9 +2,7 @@
 (package-initialize)
 
 (add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives
-	     '("melpa" . "http://melpa.milkbox.net/packages/"))
+	     '("melpa-stable" . "https://stable.melpa.org/packages/"))
 
 (require 'align)
 (require 'ansi-color)
@@ -71,7 +69,7 @@
 (setq x-select-enable-clipboard t)
 
 ;; Set paths for shell
-(setq exec-path-from-shell-variables (quote ("PATH" "MANPATH" "GOPATH")))
+(setq exec-path-from-shell-variables (quote ("PATH" "MANPATH" "GOPATH" "JAVA_HOME")))
 (exec-path-from-shell-initialize)
 
 ;; Set the fill column size
@@ -87,7 +85,7 @@
 ;;   * solarized-light, solarized-dark
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(add-hook 'after-init-hook (lambda () (load-theme 'wombat t)))
+(add-hook 'after-init-hook (lambda () (load-theme 'sanityinc-tomorrow-eighties t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; multiple-cursors
@@ -157,18 +155,6 @@
 (add-to-list 'auto-mode-alist '("\.go$" . go-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Handlebars
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(add-hook 'handlebars-mode-hook
-	  (lambda()
-	    (setq indent-tabs-mode nil)
-	    (setq tab-width 2)
-	    (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t)))
-
-(add-to-list 'auto-mode-alist '("\.hbs$" . handlebars-mode))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Html
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -195,6 +181,14 @@
 (setq js2-strict-trailing-comma-warning nil)
 
 (add-hook 'js2-mode-hook 'my-js2-mode-hook)
+
+(defun my-typescript-mode-hook ()
+  (setq tabs-always-indent nil)
+  (setq typescript-indent-level 2)
+  (setq indent-tabs-mode nil)
+  (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t))
+
+(add-hook 'typescript-mode-hook 'my-typescript-mode-hook)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; JSON
@@ -254,6 +248,7 @@
 (defvar web-mode-code-indent-offset)
 (defvar web-mode-enable-auto-quoting)
 (defvar web-mode-indent-style)
+(defvar web-mode-indentation-params)
 
 (defun my-web-mode-hook ()
   (setq tabs-always-indent nil)
@@ -263,6 +258,10 @@
   (setq web-mode-enable-auto-quoting nil)
   (setq web-mode-indent-style 2)
   (setq indent-tabs-mode nil)
+  (add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-ternary" . nil))
   (web-mode-set-content-type "jsx")
   (add-hook 'write-file-hooks 'delete-trailing-whitespace nil t))
 
@@ -295,57 +294,60 @@
 '(markdown-pandoc-pdf-command "pandoc -V geometry:margin=1in -s --mathjax")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Markdown
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(setq plantuml-jar-path "/usr/local/Cellar/plantuml/1.2018.14/libexec/plantuml.jar")
-(add-to-list 'auto-mode-alist '("\.plantuml$" . plantuml-mode))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Theme
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; (load-theme 'sanityinc-tomorrow-eighties t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(compilation-message-face (quote default))
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(beacon-color "#f2777a")
+ '(compilation-message-face 'default)
  '(cua-global-mark-cursor-color "#2aa198")
  '(cua-normal-cursor-color "#839496")
  '(cua-overwrite-cursor-color "#b58900")
  '(cua-read-only-cursor-color "#859900")
- '(custom-enabled-themes (quote (sanityinc-tomorrow-eighties)))
  '(custom-safe-themes
-   (quote
-    ("b1471d88b39cad028bd621ae7ae1e8e3e3fca2c973f0dfe3fd6658c194a542ff" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "82d2cac368ccdec2fcc7573f24c3f79654b78bf133096f9b40c20d97ec1d8016" default)))
- '(highlight-changes-colors (quote ("#d33682" "#6c71c4")))
- '(highlight-symbol-colors
-   (--map
-    (solarized-color-blend it "#002b36" 0.25)
-    (quote
-     ("#b58900" "#2aa198" "#dc322f" "#6c71c4" "#859900" "#cb4b16" "#268bd2"))))
- '(highlight-symbol-foreground-color "#93a1a1")
- '(highlight-tail-colors
-   (quote
-    (("#073642" . 0)
-     ("#546E00" . 20)
-     ("#00736F" . 30)
-     ("#00629D" . 50)
-     ("#7B6000" . 60)
-     ("#8B2C02" . 70)
-     ("#93115C" . 85)
-     ("#073642" . 100))))
+   '("9be1d34d961a40d94ef94d0d08a364c3d27201f3c98c9d38e36f10588469ea57" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "b8929cff63ffc759e436b0f0575d15a8ad7658932f4b2c99415f3dde09b32e97" "1d079355c721b517fdc9891f0fda927fe3f87288f2e6cc3b8566655a64ca5453" "760ce657e710a77bcf6df51d97e51aae2ee7db1fba21bbad07aab0fa0f42f834" "34ed3e2fa4a1cb2ce7400c7f1a6c8f12931d8021435bad841fdc1192bd1cc7da" "b3bcf1b12ef2a7606c7697d71b934ca0bdd495d52f901e73ce008c4c9825a3aa" "cc71cf67745d023dd2e81f69172888e5e9298a80a2684cbf6d340973dd0e9b75" "25c06a000382b6239999582dfa2b81cc0649f3897b394a75ad5a670329600b45" "aea30125ef2e48831f46695418677b9d676c3babf43959c8e978c0ad672a7329" default))
+ '(fci-rule-color "#515151")
+ '(flycheck-color-mode-line-face-to-color 'mode-line-buffer-id)
+ '(frame-background-mode 'dark)
  '(magit-diff-use-overlays nil)
  '(package-selected-packages
-   (quote
-    (gotest flymake-golangci flycheck-golangci-lint flymake flymake-go ruby-refactor ruby-tools protobuf-mode coffee-mode plantuml-mode go-mode python-mode markdown-mode scss-mode ruby-additional rspec-mode flymake-ruby yaml-mode magit color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow web-mode multiple-cursors jsx-mode json-mode js2-mode flycheck exec-path-from-shell)))
+   '(magit base16-theme color-theme-wombat flycheck-golangci-lint coffee-mode ruby-additional color-theme-sanityinc-solarized color-theme-sanityinc-tomorrow jsx-mode exec-path-from-shell))
+ '(shell-file-name "/bin/bash")
  '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
  '(term-default-bg-color "#002b36")
  '(term-default-fg-color "#839496")
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   '((20 . "#f2777a")
+     (40 . "#f99157")
+     (60 . "#ffcc66")
+     (80 . "#99cc99")
+     (100 . "#66cccc")
+     (120 . "#6699cc")
+     (140 . "#cc99cc")
+     (160 . "#f2777a")
+     (180 . "#f99157")
+     (200 . "#ffcc66")
+     (220 . "#99cc99")
+     (240 . "#66cccc")
+     (260 . "#6699cc")
+     (280 . "#cc99cc")
+     (300 . "#f2777a")
+     (320 . "#f99157")
+     (340 . "#ffcc66")
+     (360 . "#99cc99")))
+ '(vc-annotate-very-old-color nil)
  '(weechat-color-list
-   (quote
-    (unspecified "#002b36" "#073642" "#990A1B" "#dc322f" "#546E00" "#859900" "#7B6000" "#b58900" "#00629D" "#268bd2" "#93115C" "#d33682" "#00736F" "#2aa198" "#839496" "#657b83"))))
+   '(unspecified "#002b36" "#073642" "#990A1B" "#dc322f" "#546E00" "#859900" "#7B6000" "#b58900" "#00629D" "#268bd2" "#93115C" "#d33682" "#00736F" "#2aa198" "#839496" "#657b83"))
+ '(window-divider-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
